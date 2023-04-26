@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dsauerbrun/cragcast/pkg/noaa-client"
+	"github.com/dsauerbrun/cragcast/pkg/weather-client"
 )
 
 type Controllers struct{}
 
 func (c *Controllers) GetForecast(w http.ResponseWriter, r *http.Request) {
-	NoaaClient := client.GenerateNoaaClient()
+	NoaaClient := client.New()
 	gotForecast, err := NoaaClient.GetForecast(52, 75)
 	if err != nil {
 		fmt.Print(err.Error())
