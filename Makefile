@@ -18,7 +18,7 @@ build: ## Creates a cragcast binary at ./out/cragcast. Uses host's OS and Arch.
 
 run: ## Runs the cragscast binary locally.
 	@printf $(green_start)"cragcast is running"$(green_end)
-	go run ./cmd/main.go
+	go run ./cmd/main.go serve
 	@printf $(green_start)"cragcast exited"$(green_end)
 
 install: ## Creates a cragcast binary and installs it to $GOBIN.
