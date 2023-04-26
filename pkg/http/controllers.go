@@ -4,26 +4,49 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/dsauerbrun/cragcast/pkg/weather-client"
 )
 
-type Controllers struct{}
+const (
+	errorResponseTemplate = `{ "error": "%s" }`
+)
+
+type Controllers struct {
+	cl client.WeatherClient
+}
 
 func (c *Controllers) GetForecast(w http.ResponseWriter, r *http.Request) {
-	NoaaClient := client.New()
-	gotForecast, err := NoaaClient.GetForecast(52, 75)
+	forcast, err := c.cl.GetForecast(52, 75)
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
-
-	marshalledforecast, err := json.Marshal(gotForecast)
-	if err != nil {
-		fmt.Println(err)
+		// TODO(joshrosso): need to be more thoughtful with the error
+		// message we pass back in the body
+		respondWithInternalServerError(w, err)
 		return
 	}
 
-	fmt.Fprintf(w, string(marshalledforecast))
+	forcastJSON, err := json.Marshal(forcast)
+	if err != nil {
+		// TODO(joshrosso): need to be more thoughtful with the error
+		// message we pass back in the body
+		respondWithInternalServerError(w, err)
+		return
+	}
+	_, err = w.Write(forcastJSON)
+	if err != nil {
+		// TODO(joshrosso): need to be more thoughtful with the error
+		// message we pass back in the body
+		respondWithInternalServerError(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", http.DetectContentType(forcastJSON))
+}
+
+func New() Controllers {
+	return Controllers{cl: client.New()}
+}
+
+func respondWithInternalServerError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(fmt.Sprintf(errorResponseTemplate, err.Error())))
 }

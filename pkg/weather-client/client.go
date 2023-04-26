@@ -3,10 +3,8 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
+	"io"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -70,7 +68,7 @@ type ForecastResponse struct {
 }
 
 type WeatherClient interface {
-	GetForecast(xCoordinate, yCoordinate float32) (ForecastResponse, error)
+	GetForecast(xCoordinate, yCoordinate float32) (*ForecastResponse, error)
 }
 
 type NoaaClient struct {
@@ -85,25 +83,26 @@ func New() WeatherClient {
 	return newNoaaClient()
 }
 
-func (nc *NoaaClient) GetForecast(xCoordinate float32, yCoordinate float32) (ForecastResponse, error) {
+func (nc *NoaaClient) GetForecast(xCoordinate float32, yCoordinate float32) (*ForecastResponse, error) {
 	// BOU weather office(boulder), 52X, 75Y this is boulder
 	url := fmt.Sprintf("%s/gridpoints/BOU/%f,%f/forecast/hourly",
 		nc.APIEndpoint, xCoordinate, yCoordinate)
 	response, err := http.Get(url)
-
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	var responseObject ForecastResponse
-	json.Unmarshal(responseData, &responseObject)
-	return responseObject, nil
+	forecastData := &ForecastResponse{}
+	err = json.Unmarshal(responseBody, forecastData)
+	if err != nil {
+		return nil, err
+	}
+	return forecastData, nil
 }
 
 func newNoaaClient() *NoaaClient {
