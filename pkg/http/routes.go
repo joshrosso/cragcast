@@ -20,7 +20,7 @@ type StartOptions struct {
 
 // Start runs the cragcast API server.
 func Start(opts StartOptions) {
-	controller := New()
+	controller := NewController()
 	http.HandleFunc("/forecast/boulder", controller.GetForecast)
 
 	if opts.Port == 0 {

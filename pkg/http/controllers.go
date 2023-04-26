@@ -42,7 +42,7 @@ func (c *Controllers) GetForecast(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", http.DetectContentType(forcastJSON))
 }
 
-func New() Controllers {
+func NewController() Controllers {
 	return Controllers{cl: client.New()}
 }
 
