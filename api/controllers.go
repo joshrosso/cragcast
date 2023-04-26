@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dsauerbrun/cragcast/noaaclient"
+	"github.com/dsauerbrun/cragcast/pkg/noaaClient"
 )
 
 type Controllers struct{}
