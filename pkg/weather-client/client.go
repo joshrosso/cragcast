@@ -28,7 +28,7 @@ func New() WeatherClient {
 	return newNoaaClient()
 }
 
-func (nc *NoaaClient) GetForecast(lat float64, lng float64) (*ForecastResponse, error) {
+func (nc *NoaaClient) GetForecast(lat, lng float64) (*ForecastResponse, error) {
 	// 40.0294122,-105.3223779 is lat,lng for boulder
 	xCoord, yCoord, stationCode, err := nc.getNoaaPointInfo(lat, lng)
 	if err != nil {
@@ -62,7 +62,7 @@ func newNoaaClient() *NoaaClient {
 	}
 }
 
-func (nc *NoaaClient) getNoaaPointInfo(lat float64, lng float64) (xCoord float64, yCoord float64, stationCode string, err error) {
+func (nc *NoaaClient) getNoaaPointInfo(lat, lng float64) (xCoord float64, yCoord float64, stationCode string, err error) {
 	// cache this in the future as it will basically never change
 	pointUrl := fmt.Sprintf("%s/points/%f,%f", nc.APIEndpoint, lat, lng)
 	response, err := http.Get(pointUrl)
