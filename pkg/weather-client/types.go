@@ -58,11 +58,7 @@ type ForecastResponse struct {
 
 type PointResponse struct {
 	Properties struct {
-		_ID                 string `json:"@id"`
-		_Type               string `json:"@type"`
-		County              string `json:"county"`
 		Cwa                 string `json:"cwa"`
-		FireWeatherZone     string `json:"fireWeatherZone"`
 		Forecast            string `json:"forecast"`
 		ForecastGridData    string `json:"forecastGridData"`
 		ForecastHourly      string `json:"forecastHourly"`
@@ -73,26 +69,7 @@ type PointResponse struct {
 		GridY               int    `json:"gridY"`
 		ObservationStations string `json:"observationStations"`
 		RadarStation        string `json:"radarStation"`
-		RelativeLocation    struct {
-			Geometry struct {
-				Coordinates []float64 `json:"coordinates"`
-				Type        string    `json:"type"`
-			} `json:"geometry"`
-			Properties struct {
-				Bearing struct {
-					UnitCode string `json:"unitCode"`
-					Value    int    `json:"value"`
-				} `json:"bearing"`
-				City     string `json:"city"`
-				Distance struct {
-					UnitCode string  `json:"unitCode"`
-					Value    float64 `json:"value"`
-				} `json:"distance"`
-				State string `json:"state"`
-			} `json:"properties"`
-			Type string `json:"type"`
-		} `json:"relativeLocation"`
-		TimeZone string `json:"timeZone"`
+		TimeZone            string `json:"timeZone"`
 	} `json:"properties"`
 	Type string `json:"type"`
 }

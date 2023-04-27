@@ -30,15 +30,13 @@ func New() WeatherClient {
 
 func (nc *NoaaClient) GetForecast(lat, lng float64) (*ForecastResponse, error) {
 	// 40.0294122,-105.3223779 is lat,lng for boulder
-	xCoord, yCoord, stationCode, err := nc.getNoaaPointInfo(lat, lng)
+	pointData, err := nc.getNoaaPointInfo(lat, lng)
 	if err != nil {
 		return nil, err
 	}
 
 	// BOU weather office(boulder), 52X, 75Y is boulder
-	url := fmt.Sprintf("%s/gridpoints/%s/%f,%f/forecast/hourly",
-		nc.APIEndpoint, stationCode, xCoord, yCoord)
-	response, err := http.Get(url)
+	response, err := http.Get(pointData.Properties.ForecastHourly)
 	if err != nil {
 		return nil, err
 	}
@@ -62,23 +60,23 @@ func newNoaaClient() *NoaaClient {
 	}
 }
 
-func (nc *NoaaClient) getNoaaPointInfo(lat, lng float64) (xCoord float64, yCoord float64, stationCode string, err error) {
+func (nc *NoaaClient) getNoaaPointInfo(lat, lng float64) (*PointResponse, error) {
 	// cache this in the future as it will basically never change
 	pointUrl := fmt.Sprintf("%s/points/%f,%f", nc.APIEndpoint, lat, lng)
 	response, err := http.Get(pointUrl)
 	if err != nil {
-		return 0, 0, "", err
+		return nil, err
 	}
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return 0, 0, "", err
+		return nil, err
 	}
 
 	pointData := &PointResponse{}
 	err = json.Unmarshal(responseBody, pointData)
 	if err != nil {
-		return 0, 0, "", err
+		return nil, err
 	}
 
-	return float64(pointData.Properties.GridX), float64(pointData.Properties.GridY), pointData.Properties.Cwa, nil
+	return pointData, nil
 }
