@@ -13,7 +13,7 @@ const (
 )
 
 type WeatherClient interface {
-	GetForecast(lat float64, lng float64) (*ForecastResponse, error)
+	GetForecast(lat, lng float64) (*ForecastResponse, error)
 }
 
 type NoaaClient struct {
