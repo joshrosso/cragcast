@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dsauerbrun/cragcast/pkg/weather-client"
+	client "github.com/dsauerbrun/cragcast/pkg/weather-client"
 )
 
 const (
@@ -17,7 +17,7 @@ type Controllers struct {
 }
 
 func (c *Controllers) GetForecast(w http.ResponseWriter, r *http.Request) {
-	forcast, err := c.cl.GetForecast(52, 75)
+	forcast, err := c.cl.GetForecast(40.0294122, -105.3223779)
 	if err != nil {
 		// TODO(joshrosso): need to be more thoughtful with the error
 		// message we pass back in the body

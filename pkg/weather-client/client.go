@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 )
 
 const (
@@ -13,62 +12,8 @@ const (
 	weatherDotGovAPIEndpoint = "https://api.weather.gov"
 )
 
-type Elevation struct {
-	UnitCode string  `json:"unitCode"`
-	Value    float64 `json:"value"`
-}
-
-type Dewpoint struct {
-	UnitCode string  `json:"unitCode"`
-	Value    float64 `json:"value"`
-}
-
-type ProbabilityOfPrecipitation struct {
-	UnitCode string `json:"unitCode"`
-	Value    int    `json:"value"`
-}
-
-type RelativeHumidity struct {
-	UnitCode string `json:"unitCode"`
-	Value    int    `json:"value"`
-}
-
-type Period struct {
-	Dewpoint                   Dewpoint                   `json:"dewpoint"`
-	EndTime                    time.Time                  `json:"endTime"`
-	Icon                       string                     `json:"icon"`
-	IsDaytime                  bool                       `json:"isDaytime"`
-	Name                       string                     `json:"name"`
-	Number                     int                        `json:"number"`
-	ProbabilityOfPrecipitation ProbabilityOfPrecipitation `json:"probabilityOfPrecipitation"`
-	RelativeHumidity           RelativeHumidity           `json:"relativeHumidity"`
-	ShortForecast              string                     `json:"shortForecast"`
-	StartTime                  time.Time                  `json:"startTime"`
-	Temperature                int                        `json:"temperature"`
-	TemperatureTrend           interface{}                `json:"temperatureTrend"`
-	TemperatureUnit            string                     `json:"temperatureUnit"`
-	WindDirection              string                     `json:"windDirection"`
-	WindSpeed                  string                     `json:"windSpeed"`
-}
-
-type Properties struct {
-	Elevation         Elevation `json:"elevation"`
-	ForecastGenerator string    `json:"forecastGenerator"`
-	GeneratedAt       time.Time `json:"generatedAt"`
-	Periods           []Period  `json:"periods"`
-	Units             string    `json:"units"`
-	UpdateTime        time.Time `json:"updateTime"`
-	Updated           time.Time `json:"updated"`
-	ValidTimes        string    `json:"validTimes"`
-}
-
-type ForecastResponse struct {
-	Properties Properties `json:"properties"`
-	Type       string     `json:"type"`
-}
-
 type WeatherClient interface {
-	GetForecast(xCoordinate, yCoordinate float32) (*ForecastResponse, error)
+	GetForecast(lat, lng float64) (*ForecastResponse, error)
 }
 
 type NoaaClient struct {
@@ -83,11 +28,15 @@ func New() WeatherClient {
 	return newNoaaClient()
 }
 
-func (nc *NoaaClient) GetForecast(xCoordinate float32, yCoordinate float32) (*ForecastResponse, error) {
-	// BOU weather office(boulder), 52X, 75Y this is boulder
-	url := fmt.Sprintf("%s/gridpoints/BOU/%f,%f/forecast/hourly",
-		nc.APIEndpoint, xCoordinate, yCoordinate)
-	response, err := http.Get(url)
+func (nc *NoaaClient) GetForecast(lat, lng float64) (*ForecastResponse, error) {
+	// 40.0294122,-105.3223779 is lat,lng for boulder
+	pointData, err := nc.getNoaaPointInfo(lat, lng)
+	if err != nil {
+		return nil, err
+	}
+
+	// BOU weather office(boulder), 52X, 75Y is boulder
+	response, err := http.Get(pointData.Properties.ForecastHourly)
 	if err != nil {
 		return nil, err
 	}
@@ -109,4 +58,25 @@ func newNoaaClient() *NoaaClient {
 	return &NoaaClient{
 		APIEndpoint: weatherDotGovAPIEndpoint,
 	}
+}
+
+func (nc *NoaaClient) getNoaaPointInfo(lat, lng float64) (*PointResponse, error) {
+	// cache this in the future as it will basically never change
+	pointUrl := fmt.Sprintf("%s/points/%f,%f", nc.APIEndpoint, lat, lng)
+	response, err := http.Get(pointUrl)
+	if err != nil {
+		return nil, err
+	}
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	pointData := &PointResponse{}
+	err = json.Unmarshal(responseBody, pointData)
+	if err != nil {
+		return nil, err
+	}
+
+	return pointData, nil
 }
