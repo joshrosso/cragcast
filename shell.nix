@@ -8,6 +8,7 @@ pkgs.mkShell {
     pkgs.go
     pkgs.gopls
     pkgs.awscli2
+    pkgs.golangci-lint
   ];
 
 }
