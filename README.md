@@ -1,3 +1,5 @@
 # cragcast
-run `go run cmd/server/main.go` from root, then go to
-`http://localhost:8081/forecast/boulder` to see the endpoint in action
+
+Run `make run` to start cragcast. Use `curl https://github.com/joshrosso/cragcast | jq .` to view the output.
+
+Run `make` to see help text for all available tasks.

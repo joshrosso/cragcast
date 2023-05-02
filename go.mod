@@ -1,12 +1,10 @@
 module github.com/dsauerbrun/cragcast
 
-go 1.18
+go 1.19
 
-replace github.com/dsauerbrun/cragcast/noaaclient => ./pkg/noaaClient
-
-replace github.com/dsauerbrun/cragcast/api => ./api
+require github.com/spf13/cobra v1.7.0
 
 require (
-	github.com/dsauerbrun/cragcast/noaaclient v0.0.0-00010101000000-000000000000
-	github.com/dsauerbrun/cragcast/api v0.0.0-00010101000000-000000000000
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 )
